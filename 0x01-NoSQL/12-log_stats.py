@@ -18,17 +18,10 @@ if __name__ == '__main__':
 
     x = nginx.count_documents({})
 
-    methods = {'GET': 0, "POST": 0, "PUT": 0, "PATCH": 0, "DELETE": 0}
-
-    status_number = 0
-    for doc in nginx.find({'method': {'$in':
-                          ["GET", "POST", "PUT", "PATCH", "DELETE"]}}):
-        methods[doc['method']] += 1
-        if (doc['method'] == 'GET' and doc['path'] == '/status'):
-            status_number += 1
+    methods = ["GET", "POST", "PUT", "PATCH", "DELETE"]
 
     print(f"{x} logs")
     print('Methods:')
-    for k, v in methods.items():
-        print(f"    method {k}: {v}")
-    print(f'{status_number} status check')
+    for method in methods:
+        print('\t{}: {}'.format(method, nginx.count_documents({"method": method})))
+    print('{} status check'.format(nginx.count_documents({'method': 'GET', "path": "/status"})))
