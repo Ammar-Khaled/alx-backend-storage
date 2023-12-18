@@ -4,24 +4,34 @@ This project module contains a Python script that provides
 some stats about Nginx logs stored in MongoDB.
 """
 
-if __name__ == '__main__':
+from pymongo import MongoClient
 
-    from pymongo import MongoClient
 
-    connection_string = 'mongodb://127.0.0.1:27017/'
-
-    client = MongoClient(connection_string)
-
-    logs = client.logs
-
-    nginx = logs.get_collection('nginx')
-
-    x = nginx.count_documents({})
-
+def stats_logs() -> None:
+    """
+    Function that provides some stats about Nginx logs
+    stored in MongoDB.
+    Returns:
+        Stats about Nginx logs.
+    """
     methods = ["GET", "POST", "PUT", "PATCH", "DELETE"]
+    myclient = MongoClient("mongodb://localhost:27017/")
+    my_database = myclient["logs"]
+    nginx = my_database["nginx"]
+    print("{} logs".format(nginx.count_documents({})))
+    print("Methods:")
 
-    print(f"{x} logs")
-    print('Methods:')
     for method in methods:
-        print('\t{}: {}'.format(method, nginx.count_documents({"method": method})))
-    print('{} status check'.format(nginx.count_documents({'method': 'GET', "path": "/status"})))
+        print(
+            "\tmethod {}: {}".format(
+                method, nginx.count_documents({"method": method}))
+        )
+
+    print(
+        "{} status check".format(
+            nginx.count_documents({"method": "GET", "path": "/status"}))
+    )
+
+
+if __name__ == "__main__":
+    stats_logs()
