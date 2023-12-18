@@ -28,6 +28,7 @@ if __name__ == '__main__':
             status_number += 1
 
     print(f"{x} logs")
+    print('Methods:')
     for k, v in methods.items():
-        print(f"\tmethod {k}: {v}")
+        print(f"    method {k}: {v}")
     print(f'{status_number} status check')
