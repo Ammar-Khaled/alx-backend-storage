@@ -76,7 +76,6 @@ class Cache:
             return fn(value)
         return value
 
-
     def get_str(self, key: str) -> str:
         """Parametise Cache.get to str."""
         data = self._redis.get(key)
