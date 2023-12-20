@@ -25,6 +25,7 @@ def track_requests(method: Callable) -> Callable:
     return wrapper
 
 
+@track_requests
 def get_page(url: str) -> str:
     """Use the requests module to obtain the HTML content of
     a particular URL and returns it."""
