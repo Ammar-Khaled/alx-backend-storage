@@ -8,8 +8,10 @@ from functools import wraps
 r = redis.Redis()
 
 
-def track_requests(method: Callable) -> Callable:
-    """Decorator."""
+def count_requests(method: Callable) -> Callable:
+    """ Decorator for counting how many times a request
+    has been made """
+
     @wraps(method)
     def wrapper(url):
         """ Wrapper for decorator functionality """
@@ -18,16 +20,17 @@ def track_requests(method: Callable) -> Callable:
         if cached_html:
             return cached_html.decode('utf-8')
 
-        response = method(url)
-        r.setex(f"cached:{url}", 10, response)
-        return response
+        html = method(url)
+        r.setex(f"cached:{url}", 10, html)
+        return html
 
     return wrapper
 
 
-@track_requests
+@count_requests
 def get_page(url: str) -> str:
-    """Use the requests module to obtain the HTML content of
-    a particular URL and returns it."""
-    response = requests.get(url)
-    return response.text
+    """Uses the requests module to obtain the HTML
+    content of a particular URL and returns it.
+    """
+    req = requests.get(url)
+    return req.text
