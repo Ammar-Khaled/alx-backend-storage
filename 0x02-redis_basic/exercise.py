@@ -2,15 +2,16 @@
 '''This module defines the Cache class with some decorators and functions.'''
 import redis
 import uuid
-from typing import Union, Optional, Callable
+from typing import Union, Callable
 from functools import wraps
 
 
 def count_calls(method: Callable) -> Callable:
     """Count how many times methods of the Cache class are called."""
+    key = method.__qualname__
+
     @wraps(method)
     def wrapper(self, *args, **kwargs):
-        key = method.__qualname__
         args[0]._redis.incr(key)
         return method(self, *args, **kwargs)
 
@@ -21,11 +22,12 @@ def call_history(method: Callable) -> Callable:
     """Call a method that stores the history of inputs and outputs
        for a particular function.
     """
+    key = method.__qualname__
+    input_list_key = key + ':inputs'
+    output_list_key = key + ':outputs'
+
     @wraps(method)
     def wrapper(self, *args, **kwargs):
-        key = method.__qualname__
-        input_list_key = key + ':inputs'
-        output_list_key = key + ':outputs'
         args[0]._redis.rpush(input_list_key, str(args))
         output = method(self, *args, **kwargs)
         args[0]._redis.rpush(output_list_key, output)
@@ -67,18 +69,15 @@ class Cache:
         self._redis.set(key, data)
         return key
 
-    def get(self, key: str, fn: Optional[Callable] = None):
+    def get(self, key: str, fn: Callable = None):
         """Get the value from Redis."""
         value = self._redis.get(key)
-        if value:
-            if fn:
-                return fn(value)
-            else:
-                return value
-        else:
-            return None
+        if fn:
+            return fn(value)
+        return value
 
-    def get_str(self, key: str) -> Optional[str]:
+
+    def get_str(self, key: str) -> str:
         """Parametise Cache.get to str."""
         data = self._redis.get(key)
         return data.decode("utf-8")
