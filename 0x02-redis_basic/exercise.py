@@ -84,5 +84,9 @@ class Cache:
 
     def get_int(self, key: str) -> int:
         """Parametise Cache.get to int."""
-        data = self._redis.get(key)
-        return int(data.decode("utf-8"))
+        value = self._redis.get(key)
+        try:
+            value = int(value.decode("utf-8"))
+        except Exception:
+            value = 0
+        return value
