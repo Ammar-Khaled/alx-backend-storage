@@ -34,3 +34,10 @@ def get_page(url: str) -> str:
     """
     req = requests.get(url)
     return req.text
+
+
+if __name__ == "__main__":
+    import time
+    before = time.perf_counter()
+    print(get_page('http://slowwly.robertomurray.co.uk'))
+    print(time.perf_counter() - before)
